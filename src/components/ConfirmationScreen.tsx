@@ -13,12 +13,27 @@ export default function ConfirmationScreen({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 md:p-12">
-        <div className="flex justify-center mb-6">
-          <img
-            src="/public/Escudo.jpeg"
-            alt="Escudo"
-            className="h-20 w-20 object-contain"
-          />
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img
+              src="/Escudo.jpeg"
+              alt="Escudo"
+              className="h-12 w-12 rounded-full object-cover bg-white/90 p-0.5"
+            />
+            <CheckCircle className="text-emerald-600" size={48} />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">
+            Reserva enviada correctamente
+          </h1>
+          <p className="text-lg text-gray-700 mb-2">
+            Revisa tu email con las instrucciones de pago
+          </p>
+          <div className="flex items-center justify-center gap-2 text-emerald-700">
+            <MessageCircle size={20} />
+            <p className="font-medium">
+              Para cualquier consulta: +34 658 18 79 80
+            </p>
+          </div>
         </div>
 
         <div className="bg-gradient-to-br from-emerald-50 to-slate-50 rounded-xl p-6 mb-8">

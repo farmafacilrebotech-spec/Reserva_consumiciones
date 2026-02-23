@@ -131,13 +131,13 @@ function App() {
         <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 text-white">
             <div className="flex items-center gap-3 justify-center">
+              <img
+                src="/Escudo.jpeg"
+                alt="Escudo"
+                className="h-10 w-10 rounded-full object-cover bg-white/90 p-0.5"
+              />
               <ShoppingCart size={32} />
               <h1 className="text-3xl font-bold">Reserva de Tickets Ladrillos</h1>
-              <img
-                src="/public/Escudo.jpeg"
-                alt="Escudo"
-                className="h-10 w-10 object-contain"
-              />
             </div>
           </div>
 
