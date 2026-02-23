@@ -11,6 +11,7 @@ import type { Reserva } from './types';
 //);
 
 function App() {
+  const [hasStarted, setHasStarted] = useState(false);
   const [copas, setCopas] = useState(0);
   const [cervezas, setCervezas] = useState(0);
   const [refrescos, setRefrescos] = useState(0);
@@ -128,20 +129,59 @@ function App() {
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/85 via-slate-800/80 to-emerald-900/75" />
 
       <div className="relative min-h-screen flex items-center justify-center p-4 py-12">
-        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 text-white">
-            <div className="flex items-center gap-3 justify-center">
-              <img
-                src="/Escudo.jpeg"
-                alt="Escudo"
-                className="h-10 w-10 rounded-full object-cover bg-white/90 p-0.5"
+        {!hasStarted ? (
+          <div className="w-full max-w-3xl bg-white/95 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 text-white">
+              <div className="flex items-center gap-3 justify-center">
+                <img
+                  src="/Escudo.jpeg"
+                  alt="Escudo"
+                  className="h-10 w-10 rounded-full object-cover bg-white/90 p-0.5"
+                />
+                <ShoppingCart size={32} />
+                <h1 className="text-3xl font-bold">Reserva de Tickets Ladrillos</h1>
+              </div>
+            </div>
+            <div className="p-6 md:p-10 text-center">
+              <video
+                src="/evento.mp4"
+                poster="/Escudo.jpeg"
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="mx-auto mb-6 w-full max-w-xl rounded-2xl object-cover shadow-lg"
               />
-              <ShoppingCart size={32} />
-              <h1 className="text-3xl font-bold">Reserva de Tickets Ladrillos</h1>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                Bienvenido al evento
+              </h2>
+              <p className="text-gray-700 mb-6">
+                Reserva tus consumiciones y empieza el proceso de compra.
+              </p>
+              <button
+                type="button"
+                onClick={() => setHasStarted(true)}
+                className="inline-flex items-center justify-center rounded-full border border-emerald-700 px-5 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-700 hover:text-white transition-colors"
+              >
+                Empezar
+              </button>
             </div>
           </div>
+        ) : (
+          <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 text-white">
+              <div className="flex items-center gap-3 justify-center">
+                <img
+                  src="/Escudo.jpeg"
+                  alt="Escudo"
+                  className="h-10 w-10 rounded-full object-cover bg-white/90 p-0.5"
+                />
+                <ShoppingCart size={32} />
+                <h1 className="text-3xl font-bold">Reserva de Tickets Ladrillos</h1>
+              </div>
+            </div>
 
-          <form onSubmit={handleSubmit} className="p-6 md:p-8">
+            <form onSubmit={handleSubmit} className="p-6 md:p-8">
             <div className="mb-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Selecciona tus consumiciones</h2>
               <ProductCounter
@@ -254,6 +294,7 @@ function App() {
             </button>
           </form>
         </div>
+        )}
       </div>
     </div>
   );
