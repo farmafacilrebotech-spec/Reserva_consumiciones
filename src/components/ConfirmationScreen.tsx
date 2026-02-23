@@ -13,6 +13,13 @@ export default function ConfirmationScreen({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+        <div className="flex justify-center mb-6">
+          <img
+            src="/publi/Escudo.jpeg"
+            alt="Escudo"
+            className="h-10 w-10 object-contain"
+          />
+        </div>
         <div className="text-center mb-8">
           <CheckCircle className="mx-auto mb-4 text-emerald-600" size={64} />
           <h1 className="text-3xl font-bold text-gray-900 mb-3">

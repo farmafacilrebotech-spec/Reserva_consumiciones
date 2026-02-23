@@ -132,7 +132,12 @@ function App() {
           <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 text-white">
             <div className="flex items-center gap-3 justify-center">
               <ShoppingCart size={32} />
-              <h1 className="text-3xl font-bold">Reserva de Tiquets Evento</h1>
+              <h1 className="text-3xl font-bold">Reserva de Tickets Ladrillos</h1>
+              <img
+                src="/publi/Escudo.jpeg"
+                alt="Escudo"
+                className="h-10 w-10 object-contain"
+              />
             </div>
           </div>
 
