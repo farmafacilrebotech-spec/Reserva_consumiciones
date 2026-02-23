@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+//import { createClient } from '@supabase/supabase-js';
 import { ShoppingCart } from 'lucide-react';
 import ProductCounter from './components/ProductCounter';
 import ConfirmationScreen from './components/ConfirmationScreen';
 import type { Reserva } from './types';
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+//const supabase = createClient(
+//  import.meta.env.VITE_SUPABASE_URL,
+//  import.meta.env.VITE_SUPABASE_ANON_KEY
+//);
 
 function App() {
   const [copas, setCopas] = useState(0);
@@ -62,7 +62,7 @@ function App() {
     };
 
     try {
-      const { error: dbError } = await supabase.from('reservas').insert([
+      /*const { error: dbError } = await supabase.from('reservas').insert([
         {
           nombre: reservaData.nombre,
           email: reservaData.email,
@@ -73,9 +73,9 @@ function App() {
           vasos: reservaData.vasos,
           total: reservaData.total,
         },
-      ]);
+      ]);*/
 
-      if (dbError) throw dbError;
+      //if (dbError) throw dbError;
 
       const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
       if (webhookUrl && webhookUrl !== 'https://script.google.com/macros/s/XXXXXXX/exec') {
