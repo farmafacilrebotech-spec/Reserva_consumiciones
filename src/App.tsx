@@ -63,41 +63,58 @@ function App() {
     };
 
     try {
-      /*const { error: dbError } = await supabase.from('reservas').insert([
-        {
-          nombre: reservaData.nombre,
-          email: reservaData.email,
-          telefono: reservaData.telefono,
-          copas: reservaData.copas,
-          cervezas: reservaData.cervezas,
-          refrescos: reservaData.refrescos,
-          vasos: reservaData.vasos,
-          total: reservaData.total,
-        },
-      ]);*/
 
-      //if (dbError) throw dbError;
+      // Guardamos reserva temporalmente por seguridad
+      localStorage.setItem("ultima_reserva", JSON.stringify(reservaData));
 
       const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
-      if (webhookUrl && webhookUrl !== 'https://script.google.com/macros/s/XXXXXXX/exec') {
-        try {
-          const res = await fetch(webhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(reservaData),
-          });
-          const text = await res.text();
-          console.log('WEBHOOK status:', res.status);
-          console.log('WEBHOOK response:', text);        
-        } catch (webhookError) {
-          console.error('Error al enviar al webhook:', webhookError);
-        }
+
+      if (!webhookUrl) {
+        throw new Error("Webhook no configurado");
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify(reservaData),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      console.log("WEBHOOK status:", res.status);
+
+      if (!res.ok) {
+        throw new Error("Error HTTP en el webhook");
+      }
+
+      const result = await res.json();
+
+      console.log("WEBHOOK response:", result);
+
+      if (result.status !== "success") {
+        throw new Error("El servidor no registró la reserva");
+      }
+
+      // Eliminamos reserva temporal
+      localStorage.removeItem("ultima_reserva");
+
+      // Confirmamos reserva SOLO si el servidor respondió OK
       setConfirmedReserva(reservaData);
-    } catch (err) {
-      console.error('Error:', err);
-      setError('Hubo un error al procesar tu reserva. Por favor, inténtalo de nuevo.');
+
+    } catch (error) {
+
+      console.error("Error registrando reserva:", error);
+
+      setError(
+        "No se ha podido registrar la reserva. Comprueba tu conexión e inténtalo de nuevo."
+      );
+
     } finally {
       setLoading(false);
     }
@@ -142,6 +159,7 @@ function App() {
                 <h1 className="text-3xl font-bold">Reserva de Tickets Ladrillos</h1>
               </div>
             </div>
+
             <div className="p-6 md:p-10 text-center">
               <video
                 src="/evento.mp4"
@@ -152,12 +170,15 @@ function App() {
                 playsInline
                 className="mx-auto mb-6 w-full max-w-xl rounded-2xl object-cover shadow-lg"
               />
+
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 Bienvenido al evento
               </h2>
+
               <p className="text-gray-700 mb-6">
                 Reserva tus consumiciones y empieza el proceso de compra.
               </p>
+
               <button
                 type="button"
                 onClick={() => setHasStarted(true)}
@@ -169,6 +190,7 @@ function App() {
           </div>
         ) : (
           <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+
             <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 text-white">
               <div className="flex items-center gap-3 justify-center">
                 <img
@@ -182,118 +204,134 @@ function App() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 md:p-8">
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Selecciona tus consumiciones</h2>
-              <ProductCounter
-                name="Copa / Combinado"
-                price={8}
-                count={copas}
-                onIncrement={() => setCopas(copas + 1)}
-                onDecrement={() => setCopas(Math.max(0, copas - 1))}
-              />
-              <ProductCounter
-                name="Cerveza / Chupito"
-                price={4}
-                count={cervezas}
-                onIncrement={() => setCervezas(cervezas + 1)}
-                onDecrement={() => setCervezas(Math.max(0, cervezas - 1))}
-              />
-              <ProductCounter
-                name="Refresco / Agua"
-                price={3}
-                count={refrescos}
-                onIncrement={() => setRefrescos(refrescos + 1)}
-                onDecrement={() => setRefrescos(Math.max(0, refrescos - 1))}
-              />
-              <ProductCounter
-                name="Vaso reutilizable (OBLIGATORIO)"
-                price={1}
-                count={vasos}
-                onIncrement={() => setVasos(vasos + 1)}
-                onDecrement={() => setVasos(Math.max(0, vasos - 1))}
-              />
-            </div>
 
-            <div className="bg-gradient-to-br from-emerald-50 to-slate-50 rounded-xl p-6 mb-8">
-              <h3 className="font-bold text-gray-900 mb-3">Resumen</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-gray-700">
-                  <span>Subtotal bebidas</span>
-                  <span className="font-medium">{subtotalBebidas.toFixed(2)}€</span>
-                </div>
-                <div className="flex justify-between text-gray-700">
-                  <span>Total vasos</span>
-                  <span className="font-medium">{totalVasos.toFixed(2)}€</span>
-                </div>
-                <div className="border-t-2 border-emerald-600 pt-2 mt-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">TOTAL A PAGAR</span>
-                    <span className="text-2xl font-bold text-emerald-700">{total.toFixed(2)}€</span>
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  Selecciona tus consumiciones
+                </h2>
+
+                <ProductCounter
+                  name="Copa / Combinado"
+                  price={8}
+                  count={copas}
+                  onIncrement={() => setCopas(copas + 1)}
+                  onDecrement={() => setCopas(Math.max(0, copas - 1))}
+                />
+
+                <ProductCounter
+                  name="Cerveza / Chupito"
+                  price={4}
+                  count={cervezas}
+                  onIncrement={() => setCervezas(cervezas + 1)}
+                  onDecrement={() => setCervezas(Math.max(0, cervezas - 1))}
+                />
+
+                <ProductCounter
+                  name="Refresco / Agua"
+                  price={3}
+                  count={refrescos}
+                  onIncrement={() => setRefrescos(refrescos + 1)}
+                  onDecrement={() => setRefrescos(Math.max(0, refrescos - 1))}
+                />
+
+                <ProductCounter
+                  name="Vaso reutilizable (OBLIGATORIO)"
+                  price={1}
+                  count={vasos}
+                  onIncrement={() => setVasos(vasos + 1)}
+                  onDecrement={() => setVasos(Math.max(0, vasos - 1))}
+                />
+
+              </div>
+
+              <div className="bg-gradient-to-br from-emerald-50 to-slate-50 rounded-xl p-6 mb-8">
+                <h3 className="font-bold text-gray-900 mb-3">Resumen</h3>
+
+                <div className="space-y-2 text-sm">
+
+                  <div className="flex justify-between text-gray-700">
+                    <span>Subtotal bebidas</span>
+                    <span className="font-medium">{subtotalBebidas.toFixed(2)}€</span>
                   </div>
+
+                  <div className="flex justify-between text-gray-700">
+                    <span>Total vasos</span>
+                    <span className="font-medium">{totalVasos.toFixed(2)}€</span>
+                  </div>
+
+                  <div className="border-t-2 border-emerald-600 pt-2 mt-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-bold text-gray-900">TOTAL A PAGAR</span>
+                      <span className="text-2xl font-bold text-emerald-700">{total.toFixed(2)}€</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
-            </div>
 
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Datos del comprador</h2>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre y apellidos *
-                  </label>
-                  <input
-                    type="text"
-                    id="nombre"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none transition-all"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none transition-all"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">
-                    Teléfono *
-                  </label>
-                  <input
-                    type="tel"
-                    id="telefono"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none transition-all"
-                    required
-                  />
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Datos del comprador</h2>
+
+                <div className="space-y-4">
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre y apellidos *
+                    </label>
+                    <input
+                      type="text"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Teléfono *
+                    </label>
+                    <input
+                      type="tel"
+                      value={telefono}
+                      onChange={(e) => setTelefono(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      required
+                    />
+                  </div>
+
                 </div>
               </div>
-            </div>
 
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 text-sm font-medium">{error}</p>
-              </div>
-            )}
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 text-sm font-medium">{error}</p>
+                </div>
+              )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white font-semibold py-4 rounded-xl transition-colors text-lg"
-            >
-              {loading ? 'Procesando...' : 'Reservar Tiquets'}
-            </button>
-          </form>
-        </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:bg-gray-400 text-white font-semibold py-4 rounded-xl transition-colors text-lg"
+              >
+                {loading ? 'Procesando...' : 'Reservar Tiquets'}
+              </button>
+
+            </form>
+          </div>
         )}
       </div>
     </div>
