@@ -31,7 +31,7 @@ export default function ConfirmationScreen({
           <div className="flex items-center justify-center gap-2 text-emerald-700">
             <MessageCircle size={20} />
             <p className="font-medium">
-              Para cualquier consulta: +34 658 18 79 80
+              Para cualquier consulta: +34 613 05 06 03
             </p>
           </div>
         </div>

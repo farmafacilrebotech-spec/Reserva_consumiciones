@@ -75,7 +75,8 @@ function doPost(e) {
         <p>Podrás recoger tus tiquets el día del evento en el punto habilitado en la entrada, indicando tu nombre.</p>
 
         <h3>📲 CONSULTAS</h3>
-        <p>Para cualquier duda puedes escribir por WhatsApp al: <strong>+34 658 18 79 80</strong></p>
+        <p>Para cualquier duda puedes escribir por WhatsApp al: <strong>+34 613 05 06 03
+       </strong></p>
       `
     });
 
